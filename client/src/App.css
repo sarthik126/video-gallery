@@ -24,6 +24,7 @@ header nav {
   color: white;
 }
 header nav .nav-text h1 {
+  cursor: pointer;
   font-size: 32px;
   font-weight: lighter;
   text-align: center;

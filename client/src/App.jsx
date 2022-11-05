@@ -95,7 +95,7 @@ function App({isAdmin}) {
       <header>
       <nav>
         <div className="nav-text">
-          <h1>YouTube Video Gallery</h1>
+          <h1 onClick={()=>navigate("/")}>YouTube Video Gallery</h1>
         </div>
           <div className="header-btns">
             <button onClick={copyLink}><i className="fa-solid fa-share-alt"></i></button>
