@@ -1,32 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {motion} from 'framer-motion'
+import { useNavigate, useParams } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import VideoFrame from './VideoFrame';
 
 const serverURL = "http://localhost:5500/";
+const baseLink = "http://localhost:3000/"
 
 const api = axios.create({
   baseURL: serverURL,
 });
 
-const username = "sarthik"
-const ownerId = "5546165"
-const isAdmin = true
-
-function App() {
+function App({isAdmin}) {
   const [allVideos, setAllVideos] = useState([]);
   const [videoId,setVideoId] = useState("");
   const [videoCategory,setVideoCategory] = useState("")
   const [frameId,setFrameId] = useState("")
   const [filterVal,setFilterVal] = useState("All")
 
+  const navigate = useNavigate()
+  const {ownerId} = useParams()
+
   useEffect(()=>{
     fetchData()
-  },[]);
+  },[ownerId]);
 
   async function fetchData() {
-    const res = await api.get("/gallery/allVideos");
+    const res = await api.get(`/gallery/allVideos/${ownerId}`);
     setAllVideos(res.data);
   }
 
@@ -43,7 +46,7 @@ function App() {
   }
   
   async function deleteVideo(id){
-    const res = await api.delete("/gallery/deleteVideo",{data:{id:id}});
+    const res = await api.delete("/gallery/deleteVideo",{data:{id:id,ownerId:ownerId}});
     if(res.data.result === "success") {
       fetchData()
     } 
@@ -76,16 +79,32 @@ function App() {
     return formattedId[0];
   }
 
+  function copyLink() {
+      navigator.clipboard.writeText(`${baseLink}gallery/${ownerId}`);
+      toast("Link Copied!!");
+  }
+  
+  function logout() {
+    localStorage.setItem("gallery",JSON.stringify({}))
+    navigate("/")
+  }
+
   return (
     <div>
+      <ToastContainer position="top-center" />
       <header>
       <nav>
         <div className="nav-text">
           <h1>YouTube Video Gallery</h1>
         </div>
+          <div className="header-btns">
+            <button onClick={copyLink}><i className="fa-solid fa-share-alt"></i></button>
+            {isAdmin ? <button onClick={logout}>Logout</button> : ""}
+          </div>
       </nav>
       </header>
       <section className="main">
+        {isAdmin ?
         <div className='section-1'>
 
         <form onSubmit={addVideo}>
@@ -100,7 +119,7 @@ function App() {
             {["All",...new Set(allVideos.map(i=>i.videoCategory))].map((val,index)=><option key={index}>{val}</option>)}
           </select>
         </div>
-        </div>
+        </div> : "" }
 
         <div className="content">
           <motion.ul layout>
@@ -112,10 +131,12 @@ function App() {
                 <div onClick={()=>showVideo(item.videoId)} className='video-card'>
                   <img src={`https://img.youtube.com/vi/${item.videoId}/hqdefault.jpg`}></img>
                 </div>
+
+                {isAdmin ?
                 <div className="btns">
-                  <button onClick={() => updateVideo(item._id)} className="btn remove"><i className="fa-solid fa-edit"></i></button>
-                  <button onClick={() => deleteVideo(item._id)} className="btn update"><i className="fa-solid fa-trash-alt"></i></button>
-                </div>
+                  {(ownerId === item.ownerId) && videoCategory.length ? <button onClick={() => updateVideo(item._id)} className="btn update"><i className="fa-solid fa-edit"></i></button> : ""}
+                  {ownerId === item.ownerId ? <button onClick={() => deleteVideo(item._id)} className="btn remove"><i className="fa-solid fa-trash-alt"></i></button> : "" }
+                </div> : ""}
                 <div className='category'>{item.videoCategory}</div>
               </motion.li>
             })}

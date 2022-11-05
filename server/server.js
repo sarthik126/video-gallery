@@ -4,6 +4,7 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose');
 const Gallery = require('./Schema/Gallery')
+const User = require('./Schema/User')
 
 const port =  process.env.PORT || 5500;
 
@@ -20,8 +21,9 @@ app.get('/', (req, res) => {
   res.send("Server is running...");
 })
 
-app.get('/gallery/allVideos', async (req, res) => {
-  let data = await Gallery.find();
+app.get('/gallery/allVideos/:ownerId', async (req, res) => {
+  let ownerId = req.params.ownerId
+  let data = await Gallery.find({ownerId:ownerId});
   res.json(data);
 })
 
@@ -44,9 +46,43 @@ app.put('/gallery/updateVideo', async (req, res) => {
 
 app.delete('/gallery/deleteVideo', async (req, res) => {
     let id = req.body.id;
+    let ownerId = req.body.ownerId;
       
-    let data = await deleteData(id)
+    let data = await deleteData(id,ownerId)
     res.json({'result': 'success'});
+})
+
+// authentication
+app.post('/gallery/login', async (req, res) => {
+  let ownerId = req.body.ownerId;
+  let password = req.body.password;
+    
+  let data = await findUser(ownerId)
+
+  if(data.length !== 0) {
+    let userdata = data[0]
+    let auth = await authenticateUser(ownerId,password,userdata)
+    if(auth){
+      res.json({'result': 'success','ownerId':userdata.ownerId});
+    } else {
+      res.json({'result': 'failed','message':"Invalid Credentials"});
+    }
+  }
+  res.json({'result': 'failed','message':"User Does Not Exists"});
+})
+
+app.post('/gallery/create-user', async (req, res) => {
+  let username = req.body.username;
+  let password = req.body.password;
+  let ownerId = req.body.ownerId
+
+  let users = await findUser(ownerId)
+  if(users.length === 0) {
+    let data = await createUser(username,password,ownerId)
+    res.json({'result': 'success','message':"New User Created"});
+  } else {
+    res.json({'result': 'falied','message':"User Already Exists"});
+  }
 })
 
 
@@ -54,6 +90,7 @@ app.listen(port, () => {
   console.log(`Server listening at PORT : ${port}`)
 })
 
+// videos data
 async function createData(videoId,videoCategory,ownerId) {
   const data = await Gallery.create({ videoId: videoId, videoCategory:videoCategory,ownerId:ownerId })
   return data
@@ -64,7 +101,25 @@ async function updateData(id,videoCategory) {
   return data
 }
 
-async function deleteData(id) {
-    let data = await Gallery.deleteOne({_id:id})
+async function deleteData(id,ownerId) {
+    let data = await Gallery.deleteOne({_id:id,ownerId:ownerId})
     return data
+}
+
+// user data
+async function createUser(username,password,ownerId) {
+  const data = await User.create({ username: username, password:password,ownerId:ownerId })
+  return data
+}
+
+async function findUser(ownerId) {
+  const data = await User.find({ ownerId: ownerId })
+  return data
+}
+
+async function authenticateUser(ownerId,password,userdata){
+  if(password === userdata.password) {
+    return true
+  }
+  return false
 }
