@@ -67,8 +67,9 @@ app.post('/gallery/login', async (req, res) => {
     } else {
       res.json({'result': 'failed','message':"Invalid Credentials"});
     }
+  } else {
+    res.json({'result': 'failed','message':"User Does Not Exists"});
   }
-  res.json({'result': 'failed','message':"User Does Not Exists"});
 })
 
 app.post('/gallery/create-user', async (req, res) => {
