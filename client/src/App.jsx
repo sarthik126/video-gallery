@@ -104,14 +104,14 @@ function App({isAdmin}) {
       </nav>
       </header>
       <section className="main">
-        {isAdmin ?
+        
         <div className='section-1'>
-
+        {isAdmin ?
         <form onSubmit={addVideo}>
           <input type="text" value={videoId} onChange={(e)=>{setVideoId(e.target.value)}} placeholder="Enter YouTube Video Link" required></input>
           <input type="text" value={videoCategory} onChange={(e)=>{setVideoCategory(e.target.value)}} placeholder="Enter YouTube Category" required></input>
           <button className='add-video'>Add Video</button>
-        </form>
+        </form>: "" }
 
         <div className='filters'>
           <h4>Filters</h4>
@@ -119,7 +119,7 @@ function App({isAdmin}) {
             {["All",...new Set(allVideos.map(i=>i.videoCategory))].map((val,index)=><option key={index}>{val}</option>)}
           </select>
         </div>
-        </div> : "" }
+        </div> 
 
         <div className="content">
           <motion.ul layout>
