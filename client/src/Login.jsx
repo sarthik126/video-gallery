@@ -6,7 +6,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './Login.css';
 
-const serverURL = "http://localhost:5500/";
+const serverURL = "https://video-gallery-server.up.railway.app/";
 
 const api = axios.create({
   baseURL: serverURL,

@@ -7,8 +7,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import VideoFrame from './VideoFrame';
 
-const serverURL = "http://localhost:5500/";
-const baseLink = "http://localhost:3000/"
+const serverURL = "https://video-gallery-server.up.railway.app/";
+const baseLink = "https://zapp-gallery.web.app/"
 
 const api = axios.create({
   baseURL: serverURL,
