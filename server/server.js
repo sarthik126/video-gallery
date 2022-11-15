@@ -6,10 +6,13 @@ const mongoose = require('mongoose');
 const Gallery = require('./Schema/Gallery')
 const User = require('./Schema/User')
 
-const port =  process.env.PORT || 5500;
+const port =  process.env.PORT || 5000;
+
+// DBURL = 'mongodb://localhost:27017/gallery'
+DBURL = `mongodb+srv://${process.env.MONGONAME}:${process.env.MONGOPASS}@cluster0.3omu1pd.mongodb.net/?retryWrites=true&w=majority`
 
 async function main() {
-  await mongoose.connect('mongodb://localhost:27017/gallery');
+  await mongoose.connect(DBURL);
 }
 
 main().catch(err => console.log(err));
